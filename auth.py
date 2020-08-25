@@ -1,17 +1,26 @@
 import requests, json
+import jwt
 from flask import Flask, url_for, session
 from flask import jsonify, request
 from flask import render_template, redirect
 from flask_cors import CORS
-# from authlib.integrations.flask_client import OAuth
+
+from flask_sqlalchemy import SQLAlchemy
+from models.User import db, User
+
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ECHO'] = True
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/stockai'
+# db = SQLAlchemy()
 
-# oauth = OAuth(app)
-
-redirect_uri = "http://localhost:8080/"
+redirect_uri = "http://localhost:8080/investment"
 client_id = "1654259982"
 client_secret = "0f39cf55ed96aa82b4f101fcbe2e7649"
+
+
+db.init_app(app)
 
 @app.route("/auth/line/login_url", methods=["GET"])
 def getLineLoginURL():
@@ -27,9 +36,9 @@ def getLineLoginURL():
             "LineloginURL": loginURL
           }), 200
 
-@app.route("/auth/line", methods=["POST"])
-def postCodeToLine():
-  code =  request.json["code"]
+@app.route("/auth/line/<code>", methods=["POST"])
+def postCodeToLine(code):
+
   if (code):
     try:
       headers = {
@@ -43,24 +52,64 @@ def postCodeToLine():
         "client_secret": client_secret
       }
       lineAPI = "https://api.line.me/oauth2/v2.1/token"
-      
+
       res = requests.post(lineAPI, headers=headers, data=body)
+      # 解碼id_token取得使用者資訊      
+      # idTokenDecode = jwt.decode(res.id_token,
+      #                         client_secret,
+      #                         audience=client_id,
+      #                         issuer='https://access.line.me',
+      #                         algorithms=['HS256'])
+      # print(idTokenDecode)
 
       if (res):
         return jsonify({
             "status": "Success",
             "data": res
         }), 200
+      else:
+        return jsonify({
+            "status": "Error",
+            "description": "No res"
+        }), 404
     except:
       return jsonify({
           "status": "Error",
           "description": "Server Error."
       }), 500
-    else:
-      return jsonify({
+  else:
+    return jsonify({
+        "status": "Error",
+        "description": "Error."
+    }), 400
+
+@app.route("/auth/regist", methods=["POST"])
+def postNewUser():
+  try:
+    email = request.json["email"]
+    password = request.json["password"]
+    name = request.json["name"]
+
+    newUser = User(email, password, name)
+    db.session.add(newUser)
+    db.session.commit()
+    return jsonify({
+            "status": "Success",
+            "data": {
+              "name": name
+            }
+        }), 200
+  except:
+    return jsonify({
           "status": "Error",
-          "description": "Error."
-      }), 400
+          "description": "Server Error."
+      }), 500
+
+@app.route('/')
+def index():
+    # Create all tables
+    db.create_all()
+    return 'ok'
 
 if __name__ == "__main__":
     CORS(app)
