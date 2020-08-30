@@ -1,5 +1,4 @@
-from database import db
-
+from database import db, ma
 class User(db.Model):
     __tablename__ = 'user'
     uid = db.Column(db.Integer, primary_key=True)
@@ -11,3 +10,7 @@ class User(db.Model):
         self.email = email
         self.password = password
         self.name = name
+
+class UserSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = User
