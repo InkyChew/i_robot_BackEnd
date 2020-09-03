@@ -1,10 +1,9 @@
 import requests, json
 import jwt, datetime
 from flask import Flask, Blueprint, url_for, session
-from flask import jsonify, request, Response, abort
+from flask import jsonify, request
 from flask import render_template, redirect
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity, get_raw_jwt
-# from flask_restplus import abort
 
 from database import db
 from models.User import User, UserSchema
@@ -31,14 +30,13 @@ def getLineLoginURL():
         "&scope=profile%20openid%20email")
 
   return jsonify({
-            "status": 200,
             "LineloginURL": loginURL
           }), 200
 
 @auth.route("/auth/line/<code>", methods=["POST"])
 def postCodeToLine(code):
-
-  if (code):
+  # const code = 'ZqjOmsxvcmcOGQeJFk7l'
+  if code:
     try:
       headers = {
         'Content-Type': 'application/x-www-form-urlencoded'
@@ -51,26 +49,52 @@ def postCodeToLine(code):
         "client_secret": client_secret
       }
       lineAPI = "https://api.line.me/oauth2/v2.1/token"
+      # 取得id_token解碼得到user的line資訊
+      res = requests.post(lineAPI, headers=headers, data=body).json()
+      if res:
+        access_token = res.get("access_token")
+        decoded_id_token = jwt.decode(res.get("id_token"),
+                                client_secret,
+                                audience=client_id,
+                                issuer='https://access.line.me',
+                                algorithms=['HS256'])
+        email = decoded_id_token.get("email")
+        # user是否已存在db
+        obj_user = User.query.filter_by(email=email).first()
+        user_schema = UserSchema()
+        user = user_schema.dump(obj_user)
 
-      res = requests.post(lineAPI, headers=headers, data=body)
-      print(res)
-
-      if (res):
-        return jsonify({
-            "status": "Success",
-            "data": res
-        }), 200
+        if not user:
+          # user 不存在，存入db
+          lineId = decoded_id_token.get("sub")
+          name = decoded_id_token.get("name")
+          picture = decoded_id_token.get("picture")
+          newUser = User(email, None, name, picture, lineId)
+          db.session.add(newUser)
+          db.session.flush()
+          db.session.commit()
+          return jsonify({
+              "access_token": access_token,
+              "uid": newUser.uid,
+              "description": "Line first login success."
+          }), 200
+        else:
+          return jsonify({
+              "access_token": access_token,
+              "uid": user["uid"]
+          }), 200
       else:
         return jsonify({
-            "description": "No res"
+            "description": "Can't get line user"
         }), 404
-    except:
+    except Exception as e:
+      print(e)
       return jsonify({
-          "description": "Server Error."
-      }), 500
+            "description": "Server Error."
+        }), 500
   else:
     return jsonify({
-        "description": "Error."
+        "description": "Can't get code."
     }), 400
 
 @auth.route("/auth/regist", methods=["POST"])
@@ -80,16 +104,15 @@ def postNewUser():
     password = request.json["password"]
     name = request.json["name"]
 
-    newUser = User(email, password, name)
+    newUser = User(email, password, name, None, None)
     db.session.add(newUser)
     db.session.commit()
     return jsonify({
-            "status": "Success",
-            "data": {
-              "name": name
-            }
+            "description": "Regist success.",
+            "name": name
         }), 200
-  except:
+  except Exception as e:
+    print(e)
     return jsonify({
           "description": "Server Error."
       }), 500
@@ -103,7 +126,6 @@ def login():
     user_schema = UserSchema()
     user = user_schema.dump(obj_user)
     if not user:
-      # abort(401, description="Email invalid")
       return jsonify({
           "description": "Email invalid."
       }), 401
@@ -122,6 +144,27 @@ def login():
           "uid": user["uid"],
           "description": "Login success."
       }), 200
+  except Exception as e:
+    print(e)
+    return jsonify({
+          "description": "Server Error."
+      }), 500
+
+@auth.route("/auth/getUserInfo/<uid>", methods=["GET"])
+def getUserInfo(uid):
+  try:
+    obj_user = User.query.filter_by(uid=uid).first()
+    user_schema = UserSchema()
+    user = user_schema.dump(obj_user)
+    if not user:
+      print(Exception)
+    else:
+      userInfo = {
+        'name': user["name"],
+        'picture': user["picture"]}
+      return jsonify({
+                "data": userInfo
+              }), 200
   except Exception as e:
     print(e)
     return jsonify({
