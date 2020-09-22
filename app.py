@@ -31,6 +31,5 @@ def index():
 
 if __name__ == "__main__":
   CORS(app)
-  # from routes.__init__ import *
   app.run(host="localhost", port=8888)
   # app.run(host="192.168.43.19", port=8888)
