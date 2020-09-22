@@ -8,25 +8,19 @@ from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identi
 from database import db
 from models.User import User, UserSchema
 
-auth = Blueprint('auth', __name__)
-
-blacklist = set()
+auth = Blueprint("auth", __name__)
 
 redirect_uri = "http://localhost:8080/investment"
 client_id = "1654259982"
 client_secret = "0f39cf55ed96aa82b4f101fcbe2e7649"
 
-# @auth.errorhandler(401)
-# def resource_not_found(e):
-#     return jsonify(error=str(e)), 401
-
 @auth.route("/auth/line/login_url", methods=["GET"])
 def getLineLoginURL():
-  # CSRF = Math.random().toString(36).slice(2)
   loginURL = ("https://access.line.me/oauth2/v2.1/authorize?response_type=code"
         "&client_id=1654259982"
         "&redirect_uri=http://localhost:8080/investment"
         "&state=12313154"
+        "&bot_prompt=aggressive"
         "&scope=profile%20openid%20email")
 
   return jsonify({
@@ -35,11 +29,10 @@ def getLineLoginURL():
 
 @auth.route("/auth/line/<code>", methods=["POST"])
 def postCodeToLine(code):
-  # const code = 'ZqjOmsxvcmcOGQeJFk7l'
   if code:
     try:
       headers = {
-        'Content-Type': 'application/x-www-form-urlencoded'
+        "Content-Type": "application/x-www-form-urlencoded"
       }
       body = {
         "grant_type": "authorization_code",
@@ -56,17 +49,17 @@ def postCodeToLine(code):
         decoded_id_token = jwt.decode(res.get("id_token"),
                                 client_secret,
                                 audience=client_id,
-                                issuer='https://access.line.me',
-                                algorithms=['HS256'])
-        email = decoded_id_token.get("email")
+                                issuer="https://access.line.me",
+                                algorithms=["HS256"])
+        lineId = decoded_id_token.get("sub")
         # user是否已存在db
-        obj_user = User.query.filter_by(email=email).first()
+        obj_user = User.query.filter_by(lineId=lineId).first()
         user_schema = UserSchema()
         user = user_schema.dump(obj_user)
 
         if not user:
           # user 不存在，存入db
-          lineId = decoded_id_token.get("sub")
+          email = decoded_id_token.get("email") # email允許=null
           name = decoded_id_token.get("name")
           picture = decoded_id_token.get("picture")
           newUser = User(email, None, name, picture, lineId)
@@ -104,13 +97,22 @@ def postNewUser():
     password = request.json["password"]
     name = request.json["name"]
 
-    newUser = User(email, password, name, None, None)
-    db.session.add(newUser)
-    db.session.commit()
-    return jsonify({
-            "description": "Regist success.",
-            "name": name
-        }), 200
+    obj_user = User.query.filter_by(email=email).first()
+    user_schema = UserSchema()
+    user = user_schema.dump(obj_user)
+    if not user:
+      newUser = User(email, password, name, None, None)
+      db.session.add(newUser)
+      db.session.commit()
+      return jsonify({
+              "description": "Regist success.",
+              "name": name
+          }), 200
+    else:
+      return jsonify({
+              "description": "Email is already exist.",
+              "name": name
+          }), 401
   except Exception as e:
     print(e)
     return jsonify({
@@ -160,8 +162,8 @@ def getUserInfo(uid):
       print(Exception)
     else:
       userInfo = {
-        'name': user["name"],
-        'picture': user["picture"]}
+        "name": user["name"],
+        "picture": user["picture"]}
       return jsonify({
                 "data": userInfo
               }), 200
