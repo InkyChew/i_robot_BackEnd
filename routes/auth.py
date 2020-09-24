@@ -6,7 +6,8 @@ from flask import render_template, redirect
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity, get_raw_jwt
 
 from database import db
-from models.User import User, UserSchema
+from dbms.Models import User
+from dbms.Schemas import UserSchema
 
 auth = Blueprint("auth", __name__)
 

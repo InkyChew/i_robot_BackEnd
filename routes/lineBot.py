@@ -1,7 +1,8 @@
 import requests, json, random
 from flask import Flask, Blueprint, jsonify, request
 from database import db
-from models.User import User, UserSchema
+from dbms.Models import User
+from dbms.Schemas import UserSchema
 
 from linebot import LineBotApi, WebhookHandler
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, StickerSendMessage

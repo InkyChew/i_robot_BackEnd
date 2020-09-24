@@ -1,7 +1,9 @@
 import requests, json
 from flask import Flask, Blueprint, jsonify, request
 from database import db
-from models.User import User, UserSchema
+from dbms.Models import User
+from dbms.Schemas import UserSchema
+# from models.UserInvAct import UserInvAct, UserInvActSchema
 
 investment = Blueprint("investment", __name__)
 
