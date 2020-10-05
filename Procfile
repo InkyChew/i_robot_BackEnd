@@ -1,1 +1,1 @@
-web: gunicorn <app.py>:</callback>
+web: gunicorn app:app
