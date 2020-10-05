@@ -1,11 +1,14 @@
-from flask import Flask
+import json, configparser
+from flask import Flask, request, abort
 from database import db, ma
 from flask_cors import CORS
 from routes.auth import auth
 from routes.lineBot import lineBot
 from routes.investment import investment
 from flask_jwt_extended import JWTManager
-import json
+from linebot import LineBotApi, WebhookHandler
+from linebot.models import MessageEvent, TextMessage, TextSendMessage
+from linebot.exceptions import InvalidSignatureError
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -26,10 +29,40 @@ jwt = JWTManager(app)
 db.init_app(app)
 ma.init_app(app)
 
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+line_bot_api = LineBotApi(config.get('line-bot', 'channel_access_token'))
+handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
+
 @app.route('/')
 def index():
   db.create_all()
   return 'ok'
+
+@app.route("/callback", methods=['POST'])
+def callback():
+  # get X-Line-Signature header value
+  signature = request.headers['X-Line-Signature']
+
+  # get request body as text
+  body = request.get_data(as_text=True)
+  app.logger.info("Request body: " + body)
+  print(body)
+  # handle webhook body
+  try:
+    handler.handle(body, signature)
+  except InvalidSignatureError:
+    print("Invalid signature. Please check your channel access token/channel secret.")
+    abort(400)
+
+  return 'OK'
+
+@handler.add(MessageEvent, message=TextMessage)
+def handle_message(event):
+  line_bot_api.reply_message(
+      event.reply_token,
+      TextSendMessage(text=event.message.text))
 
 if __name__ == "__main__":
   CORS(app)

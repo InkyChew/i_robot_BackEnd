@@ -1,22 +1,23 @@
-import requests, json, random
+import requests, json, random, configparser
 from flask import Flask, Blueprint, jsonify, request
 from database import db
 from dbms.Models import User
 from dbms.Schemas import UserSchema
 
-from linebot import LineBotApi, WebhookHandler
+from linebot import LineBotApi
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, StickerSendMessage
 from linebot.models import RichMenu, RichMenuSize, RichMenuArea, RichMenuBounds, URIAction, PostbackAction
 from linebot.exceptions import LineBotApiError, InvalidSignatureError
 
 lineBot = Blueprint("lineBot", __name__)
 
-channel_access_token = "Jgvbc2trwJ0GGnbfXrYH29NeIQhr0JWuP/D72feKT6kkbw8qbakCSxt461ZguJuCutpOGUBVZ4s36FIpaThB1YvVQBC82pguJ1FMAsLQVTtlZ25Lc7RShaFgYu93LEm5VvqF9mbNgoTE4mev2RlxIAdB04t89/1O/w1cDnyilFU="
-channel_secret = "1252c2b560ea5a8ff78d852764e351ec"
+# channel_access_token = "Jgvbc2trwJ0GGnbfXrYH29NeIQhr0JWuP/D72feKT6kkbw8qbakCSxt461ZguJuCutpOGUBVZ4s36FIpaThB1YvVQBC82pguJ1FMAsLQVTtlZ25Lc7RShaFgYu93LEm5VvqF9mbNgoTE4mev2RlxIAdB04t89/1O/w1cDnyilFU="
+# channel_secret = "1252c2b560ea5a8ff78d852764e351ec"
 
-line_bot_api = LineBotApi(channel_access_token)
-handler = WebhookHandler(channel_secret)
+config = configparser.ConfigParser()
+config.read('config.ini')
 
+line_bot_api = LineBotApi(config.get('line-bot', 'channel_access_token'))
 
 @lineBot.route("/lineBot/setRichMenu", methods=["get"])
 def setRichMenu():
@@ -123,26 +124,26 @@ def verifyDepositCode():
           "description": e
       }), 404
 
-@lineBot.route("/callback", methods=['POST'])
-def callback():
-    # get X-Line-Signature header value
-    signature = request.headers['X-Line-Signature']
+# @lineBot.route("/callback", methods=['POST'])
+# def callback():
+#     # get X-Line-Signature header value
+#     signature = request.headers['X-Line-Signature']
 
-    # get request body as text
-    body = request.get_data(as_text=True)
+#     # get request body as text
+#     body = request.get_data(as_text=True)
 
-    # handle webhook body
-    try:
-        handler.handle(body, signature)
-    except InvalidSignatureError as e:
-      print(e)
-      return jsonify({
-            "description": e
-        }), 404
-    return 'OK'
+#     # handle webhook body
+#     try:
+#       handler.handle(body, signature)
+#     except InvalidSignatureError as e:
+#       print(e)
+#       return jsonify({
+#             "description": e
+#         }), 404
+#     return 'OK'
 
-@handler.add(MessageEvent, message=TextMessage)
-def handle_message(event):
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text=event.message.text))
+# @handler.add(MessageEvent, message=TextMessage)
+# def handle_message(event):
+#     line_bot_api.reply_message(
+#         event.reply_token,
+#         TextSendMessage(text=event.message.text))
