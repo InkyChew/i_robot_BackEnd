@@ -63,7 +63,7 @@ def handle_message(event):
   print(event)
   line_bot_api.reply_message(
       event.reply_token,
-      TextSendMessage(text=event.message.text))
+      TextSendMessage(text="用AI發財"))
 
 # @handler.add(PostbackEvent)
 # def handle_postback(event):
