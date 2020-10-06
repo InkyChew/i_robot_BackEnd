@@ -11,9 +11,6 @@ from linebot.exceptions import LineBotApiError, InvalidSignatureError
 
 lineBot = Blueprint("lineBot", __name__)
 
-# channel_access_token = "Jgvbc2trwJ0GGnbfXrYH29NeIQhr0JWuP/D72feKT6kkbw8qbakCSxt461ZguJuCutpOGUBVZ4s36FIpaThB1YvVQBC82pguJ1FMAsLQVTtlZ25Lc7RShaFgYu93LEm5VvqF9mbNgoTE4mev2RlxIAdB04t89/1O/w1cDnyilFU="
-# channel_secret = "1252c2b560ea5a8ff78d852764e351ec"
-
 config = configparser.ConfigParser()
 config.read('config.ini')
 
@@ -31,10 +28,10 @@ def setRichMenu():
           RichMenuArea(
             bounds=RichMenuBounds(x=0, y=0, width=833, height=843),
             action=PostbackAction(
-                    label='history',
-                    display_text='查看投資歷史績效',
-                    data='action=history&itemid=1'
-                )
+              label='history',
+              display_text='查看投資歷史績效',
+              data='action=history&itemid=1'
+            )
           ),
           RichMenuArea(
             bounds=RichMenuBounds(x=833, y=0, width=833, height=843),
@@ -123,27 +120,3 @@ def verifyDepositCode():
     return jsonify({
           "description": e
       }), 404
-
-# @lineBot.route("/callback", methods=['POST'])
-# def callback():
-#     # get X-Line-Signature header value
-#     signature = request.headers['X-Line-Signature']
-
-#     # get request body as text
-#     body = request.get_data(as_text=True)
-
-#     # handle webhook body
-#     try:
-#       handler.handle(body, signature)
-#     except InvalidSignatureError as e:
-#       print(e)
-#       return jsonify({
-#             "description": e
-#         }), 404
-#     return 'OK'
-
-# @handler.add(MessageEvent, message=TextMessage)
-# def handle_message(event):
-#     line_bot_api.reply_message(
-#         event.reply_token,
-#         TextSendMessage(text=event.message.text))

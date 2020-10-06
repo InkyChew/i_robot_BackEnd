@@ -60,9 +60,22 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+  print(event)
   line_bot_api.reply_message(
       event.reply_token,
       TextSendMessage(text=event.message.text))
+
+# @handler.add(PostbackEvent)
+# def handle_postback(event):
+#     if event.postback.data == 'ping':
+#         line_bot_api.reply_message(
+#             event.reply_token, TextSendMessage(text='pong'))
+#     elif event.postback.data == 'datetime_postback':
+#         line_bot_api.reply_message(
+#             event.reply_token, TextSendMessage(text=event.postback.params['datetime']))
+#     elif event.postback.data == 'date_postback':
+#         line_bot_api.reply_message(
+#             event.reply_token, TextSendMessage(text=event.postback.params['date']))
 
 if __name__ == "__main__":
   CORS(app)
