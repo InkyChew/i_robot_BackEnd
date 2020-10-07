@@ -14,7 +14,8 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Aaw5b5nz3@192.168.43.19/stockai'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/stockai'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@127.0.0.1/stockai'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/stockai'
 
 app.register_blueprint(auth)
 app.register_blueprint(lineBot)
