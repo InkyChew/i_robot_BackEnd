@@ -55,10 +55,9 @@ def callback():
   print(signature)
   # handle webhook body
   try:
-    if handler:
-      print("handler")
-    else:
-      handler.handle(body, signature)
+    print("try and test")
+    # else:
+    #   handler.handle(body, signature)
   except Exception as e:
     print(e)
     abort(400)
