@@ -29,11 +29,11 @@ jwt = JWTManager(app)
 db.init_app(app)
 ma.init_app(app)
 
-# config = configparser.ConfigParser()
-# config.read('config.ini')
+config = configparser.ConfigParser()
+config.read('config.ini')
 
-# line_bot_api = LineBotApi(config.get('line-bot', 'channel_access_token'))
-# handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
+line_bot_api = LineBotApi(config.get('line-bot', 'channel_access_token'))
+handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
 
 @app.route('/')
 def index():
@@ -42,11 +42,6 @@ def index():
 
 @app.route("/callback", methods=['POST'])
 def callback():
-  config = configparser.ConfigParser()
-  config.read('config.ini')
-
-  line_bot_api = LineBotApi(config.get('line-bot', 'channel_access_token'))
-  handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
   # get X-Line-Signature header value
   signature = request.headers['X-Line-Signature']
 
