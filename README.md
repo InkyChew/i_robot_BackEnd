@@ -1,6 +1,6 @@
 ## Project setup
 1. create a database.
-2. change the database config in app.py
+2. change your database config in app.py
    ```
    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@127.0.0.1/stockai'
    ```
