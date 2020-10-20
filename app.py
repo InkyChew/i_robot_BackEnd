@@ -38,26 +38,22 @@ handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
 
 @app.route('/')
 def index():
-  # db.create_all()
+  db.create_all()
   print(line_bot_api)
   print(handler)
   return 'ok'
 
 @app.route("/callback", methods=['POST'])
 def callback():
-  # get X-Line-Signature header value
   signature = request.headers['X-Line-Signature']
 
-  # get request body as text
   body = request.get_data(as_text=True)
   app.logger.info("Request body: " + body)
   print(body)
   print(signature)
-  # handle webhook body
+
   try:
-    print("try and test")
-    # else:
-    #   handler.handle(body, signature)
+    handler.handle(body, signature)
   except Exception as e:
     print(e)
     abort(400)
