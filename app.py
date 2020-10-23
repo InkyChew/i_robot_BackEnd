@@ -55,9 +55,7 @@ def callback():
   except Exception as e:
       print(e)
       abort(400)
-
   return 'OK'
-
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
