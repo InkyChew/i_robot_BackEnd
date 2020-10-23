@@ -53,6 +53,7 @@ def callback():
 
   print(body)
   SigValidator.validate(body, signature)
+
   try:
     handler.handle(body, signature)
   except Exception as e:
