@@ -35,6 +35,7 @@ config.read('config.ini')
 
 line_bot_api = LineBotApi(config.get('line-bot', 'channel_access_token'))
 handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
+SigValidator = SignatureValidator(config.get('line-bot', 'channel_secret'))
 
 @app.route('/')
 def index():
@@ -46,15 +47,17 @@ def index():
 @app.route("/callback", methods=['POST'])
 def callback():
   signature = request.headers['X-Line-Signature']
+  print("sig", signature)
   body = request.get_data(as_text=True)
   app.logger.info("Request body: " + body)
 
   print(body)
+  SigValidator.validate(body, signature)
   try:
-      handler.handle(body, signature)
+    handler.handle(body, signature)
   except Exception as e:
-      print(e)
-      abort(400)
+    print(e)
+    abort(400)
   return 'OK'
 
 @handler.add(MessageEvent, message=TextMessage)
