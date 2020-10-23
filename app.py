@@ -46,26 +46,23 @@ def index():
 @app.route("/callback", methods=['POST'])
 def callback():
   signature = request.headers['X-Line-Signature']
-
   body = request.get_data(as_text=True)
   app.logger.info("Request body: " + body)
   print(body)
-  print(signature)
-
   try:
-    handler.handle(body, signature)
+      handler.handle(body, signature)
   except Exception as e:
-    print(e)
-    abort(400)
+      print(e)
+      abort(400)
 
   return 'OK'
 
+
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-  print(event)
   line_bot_api.reply_message(
       event.reply_token,
-      TextSendMessage(text="用AI發財 just for test"))
+      TextSendMessage(text=event.message.text))
 
 # @handler.add(PostbackEvent)
 # def handle_postback(event):
