@@ -52,8 +52,8 @@ def callback():
   app.logger.info("Request body: " + body)
 
   print(body)
-  SigValidator.validate(body, signature)
-
+  valid = SigValidator.validate(body, signature)
+  print(valid)
   try:
     handler.handle(body, signature)
   except Exception as e:
