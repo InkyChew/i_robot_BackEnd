@@ -6,7 +6,7 @@ from routes.auth import auth
 from routes.lineBot import lineBot
 from routes.investment import investment
 from flask_jwt_extended import JWTManager
-from linebot import LineBotApi, WebhookHandler
+from linebot import LineBotApi, WebhookHandler, SignatureValidator
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from linebot.exceptions import InvalidSignatureError
 
