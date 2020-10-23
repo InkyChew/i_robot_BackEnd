@@ -33,12 +33,12 @@ ma.init_app(app)
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-channel_access_token = '8Qx/5LGcmGbpSqYhKkSWIu6sszJi312Wp24lxzEVzWOD2Yd9AJIvXvGxRgbvxySgutpOGUBVZ4s36FIpaThB1YvVQBC82pguJ1FMAsLQVTu7X8c19r8SG+mQoBwF7UF8qaiZD2ySjEshb0QKrFL2RQdB04t89/1O/w1cDnyilFU='
-channel_secret = '1252c2b560ea5a8ff78d852764e351ec'
-line_bot_api = LineBotApi(channel_access_token)
-handler = WebhookHandler(channel_secret)
-# line_bot_api = LineBotApi(config.get('line-bot', 'channel_access_token'))
-# handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
+# channel_access_token = '8Qx/5LGcmGbpSqYhKkSWIu6sszJi312Wp24lxzEVzWOD2Yd9AJIvXvGxRgbvxySgutpOGUBVZ4s36FIpaThB1YvVQBC82pguJ1FMAsLQVTu7X8c19r8SG+mQoBwF7UF8qaiZD2ySjEshb0QKrFL2RQdB04t89/1O/w1cDnyilFU='
+# channel_secret = '1252c2b560ea5a8ff78d852764e351ec'
+# line_bot_api = LineBotApi(channel_access_token)
+# handler = WebhookHandler(channel_secret)
+line_bot_api = LineBotApi(config.get('line-bot', 'channel_access_token'))
+handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
 
 @app.route('/')
 def index():
@@ -67,9 +67,10 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
   print(event)
-  line_bot_api.reply_message(
-      event.reply_token,
-      TextSendMessage(text="用AI發財 just for test"))
+  if event.source.user_id != "Udeadbeefdeadbeefdeadbeefdeadbeef":
+    line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(text="用AI發財 just for test"))
 
 # @handler.add(PostbackEvent)
 # def handle_postback(event):
