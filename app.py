@@ -35,13 +35,14 @@ config.read('config.ini')
 
 line_bot_api = LineBotApi(config.get('line-bot', 'channel_access_token'))
 handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
-SigValidator = SignatureValidator(config.get('line-bot', 'channel_secret'))
+# SigValidator = SignatureValidator(config.get('line-bot', 'channel_secret'))
 
 @app.route('/')
 def index():
   # db.create_all()
-  print(line_bot_api)
-  print(handler)
+  print(config.get('line-bot', 'channel_access_token'))
+  # print(line_bot_api)
+  # print(handler)
   return 'ok'
 
 @app.route("/callback", methods=['POST'])
@@ -52,8 +53,8 @@ def callback():
   app.logger.info("Request body: " + body)
 
   print(body)
-  valid = SigValidator.validate(body, signature)
-  print(valid)
+  # valid = SigValidator.validate(body, signature)
+  # print(valid)
   try:
     handler.handle(body, signature)
   except Exception as e:
