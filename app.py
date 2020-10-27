@@ -69,9 +69,9 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-  line_bot_api.reply_message(
-      event.reply_token,
-      TextSendMessage(text=event.message.text))
+  message = TextSendMessage(text=event.message.text)
+  print('1gogo', event.message.text)
+  line_bot_api.reply_message(event.reply_token, message)
 
 # @handler.add(PostbackEvent)
 # def handle_postback(event):
