@@ -33,6 +33,8 @@ ma.init_app(app)
 config = configparser.ConfigParser()
 config.read('config.ini')
 
+print('channel_access_token', config.get('line-bot', 'channel_access_token'))
+print('channel_secret', config.get('line-bot', 'channel_secret'))
 line_bot_api = LineBotApi(config.get('line-bot', 'channel_access_token'))
 handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
 # SigValidator = SignatureValidator(config.get('line-bot', 'channel_secret'))
