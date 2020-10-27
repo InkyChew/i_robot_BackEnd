@@ -43,7 +43,12 @@ def index():
   print(config.get('line-bot', 'channel_access_token'))
   # print(line_bot_api)
   # print(handler)
-  return 'ok'
+  return 'Hello World'
+
+@app.route('/test')
+def test():
+  print('Test')
+
 
 @app.route("/callback", methods=['POST'])
 def callback():
