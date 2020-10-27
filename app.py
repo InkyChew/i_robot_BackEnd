@@ -86,7 +86,7 @@ def handle_message(event):
 #             event.reply_token, TextSendMessage(text=event.postback.params['date']))
 
 if __name__ == "__main__":
-  CORS(app)
+  # CORS(app)
   port = int(os.environ.get('PORT', 5000))
   app.run(host='0.0.0.0', port=port)
   # app.run(host="localhost", port=8888)
