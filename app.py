@@ -41,6 +41,7 @@ handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
 def index():
   # db.create_all()
   print(config.get('line-bot', 'channel_access_token'))
+  print(config.get('line-bot', 'channel_secret'))
   # print(line_bot_api)
   # print(handler)
   return 'Hello World'
