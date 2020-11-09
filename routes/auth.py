@@ -1,4 +1,4 @@
-import requests, json
+import requests, json, configparser
 import jwt, datetime
 from flask import Flask, Blueprint, url_for, session
 from flask import jsonify, request
@@ -11,9 +11,11 @@ from dbms.Schemas import UserSchema
 
 auth = Blueprint("auth", __name__)
 
+config = configparser.ConfigParser()
+config.read('config.ini')
+client_id = config.get('line-login', 'client_id')
+client_secret = config.get('line-login', 'client_secret')
 redirect_uri = "http://localhost:8080/investment"
-client_id = "1654259982"
-client_secret = "0f39cf55ed96aa82b4f101fcbe2e7649"
 
 @auth.route("/auth/line/login_url", methods=["GET"])
 def getLineLoginURL():

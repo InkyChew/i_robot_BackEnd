@@ -13,9 +13,8 @@ from linebot.exceptions import InvalidSignatureError
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Aaw5b5nz3@192.168.43.19/stockai'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@127.0.0.1/stockai'
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/stockai'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@127.0.0.1/stockai'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/stockai'
 
 app.register_blueprint(auth)
 app.register_blueprint(lineBot)
@@ -33,25 +32,13 @@ ma.init_app(app)
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-print('channel_access_token', config.get('line-bot', 'channel_access_token'))
-print('channel_secret', config.get('line-bot', 'channel_secret'))
 line_bot_api = LineBotApi(config.get('line-bot', 'channel_access_token'))
 handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
-# SigValidator = SignatureValidator(config.get('line-bot', 'channel_secret'))
 
 @app.route('/')
 def index():
-  # db.create_all()
-  print(config.get('line-bot', 'channel_access_token'))
-  print(config.get('line-bot', 'channel_secret'))
-  # print(line_bot_api)
-  # print(handler)
+  db.create_all()
   return 'Hello World'
-
-@app.route('/test')
-def test():
-  print('Test')
-
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -61,8 +48,6 @@ def callback():
   app.logger.info("Request body: " + body)
 
   print(body)
-  # valid = SigValidator.validate(body, signature)
-  # print(valid)
   try:
     handler.handle(body, signature)
   except Exception as e:
@@ -89,8 +74,8 @@ def handle_message(event):
 #             event.reply_token, TextSendMessage(text=event.postback.params['date']))
 
 if __name__ == "__main__":
-  # CORS(app)
-  port = int(os.environ.get('PORT', 5000))
-  app.run(host='0.0.0.0', port=port)
-  # app.run(host="localhost", port=8888)
+  CORS(app)
+  # port = int(os.environ.get('PORT', 5000))
+  # app.run(host='0.0.0.0', port=port)
+  app.run(host="localhost", port=8888)
   # app.run(host="192.168.43.19", port=8888)
