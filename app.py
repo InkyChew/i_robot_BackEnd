@@ -11,6 +11,9 @@ from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from linebot.exceptions import InvalidSignatureError
 
 app = Flask(__name__)
+config = configparser.ConfigParser()
+config.read('config.ini')
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@127.0.0.1/stockai'
@@ -21,16 +24,13 @@ app.register_blueprint(lineBot)
 app.register_blueprint(investment)
 
 # Setup the Flask-JWT-Extended extension
-app.config['JWT_SECRET_KEY'] = 'ga2QodlFyJiNkKjwEX_OjzSnXRNdp8UHGEVd7aP7D-FBIGHh0J6QDcDfWPQi2BV7o8MBuYheWClXf0Ue-zcaC4TDDyElQK24Yso__keiWtqKM8B0EPZmP1P5MDmfgQhrkKYFYhBmt698z4lh-H1JogfPzr69b8I3b8Rfvjv5DEdEVUlpUtKslv3ptIKTymRSXkBg4JdB7F9sll4z7G4RhocNwrPbrQv6h9GhJHIcxrmKNKCOZh0jb7280yvEFz6YajTIiAAD1Q58HUburhU1gpanswAL3mfcC5CIaMtW3w0ON2qIYR2xnypBCe2dbLh_FdZPLlWYsnpYpcyntuM_yw'
+app.config['JWT_SECRET_KEY'] = config.get('JWT', 'JWT_secret_key')
 app.config['JWT_BLACKLIST_ENABLED'] = True
 app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access']
 jwt = JWTManager(app)
 
 db.init_app(app)
 ma.init_app(app)
-
-config = configparser.ConfigParser()
-config.read('config.ini')
 
 line_bot_api = LineBotApi(config.get('line-bot', 'channel_access_token'))
 handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
