@@ -37,7 +37,7 @@ handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
 
 @app.route('/')
 def index():
-  db.create_all()
+  # db.create_all()
   return 'Hello World'
 
 @app.route("/callback", methods=['POST'])
