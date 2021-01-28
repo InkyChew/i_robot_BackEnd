@@ -7,7 +7,7 @@ class User(db.Model):
   password = db.Column(db.String(128))
   name = db.Column(db.String(50), nullable=False)
   picture = db.Column(db.String(128))
-  lineId = db.Column(db.String(128), nullable=False, unique=True)
+  lineId = db.Column(db.String(128), nullable=True, unique=True)
 
   userInvAct = db.relationship("UserInvAct", uselist=False, back_populates="user")
 

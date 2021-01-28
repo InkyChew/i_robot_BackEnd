@@ -5,6 +5,8 @@ from flask_cors import CORS
 from routes.auth import auth
 from routes.lineBot import lineBot
 from routes.investment import investment
+from routes.exhibit import exhibit
+from routes.performance import performance
 from flask_jwt_extended import JWTManager
 from linebot import LineBotApi, WebhookHandler, SignatureValidator
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
@@ -22,6 +24,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/stockai'
 app.register_blueprint(auth)
 app.register_blueprint(lineBot)
 app.register_blueprint(investment)
+app.register_blueprint(exhibit)
+app.register_blueprint(performance)
 
 # Setup the Flask-JWT-Extended extension
 app.config['JWT_SECRET_KEY'] = config.get('JWT', 'JWT_secret_key')
@@ -37,7 +41,7 @@ handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
 
 @app.route('/')
 def index():
-  # db.create_all()
+  db.create_all()
   return 'Hello World'
 
 @app.route("/callback", methods=['POST'])
@@ -58,7 +62,7 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
   message = TextSendMessage(text=event.message.text)
-  print('1gogo', event.message.text)
+  print(event.message.text)
   line_bot_api.reply_message(event.reply_token, message)
 
 # @handler.add(PostbackEvent)
